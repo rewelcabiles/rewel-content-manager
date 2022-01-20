@@ -12,9 +12,6 @@ function transition_to_main (){
   }, 800); 
 }
 
-
-
-
 const DBUri = {
   data () {
     return {
@@ -54,19 +51,28 @@ const Sidebar = {
       selected_document: null,
       selected_collection: null,
       collections_loading: true,
-      documents_loading: true,
+      documents_loading: false,
       visible: false
     }
   },
   methods: {
     refresh () {
       this.collections_loading = true;
-      this.documents_loading = true;
+      this.documents_loading = false;
+      this.selected_document = null;
+      this.selected_collection = null;
+
       ipcRenderer.send('main', 'get_object');
     },
     requestDocuments(collection) {
       this.selected_collection = collection
+      this.documents_loading = true
       ipcRenderer.send("request_documents", collection)
+      ipcRenderer.on("request_documents", (event, data) => {
+        if (data.status == "ok"){
+          this.documents_loading = false
+        } 
+      })
     },
     editDocument(document){
       
@@ -91,7 +97,6 @@ const Sidebar = {
 }
 
 sidebar_vm = Vue.createApp(Sidebar).mount('#sidebar-1')
-sidebar_vm.selected_document = "B"
 
 const DocumentPanel =  {
   data() {

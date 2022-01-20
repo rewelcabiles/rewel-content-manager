@@ -19,9 +19,10 @@
     <div id="connectToDBPopUp">
       <div class="bg-gradient-to-tr from-nord0 to-nord3 rounded-2xl max-w-md mx-auto mt-48 p-14  shadow-md shadow-nord0" v-if="visible">
           <div class="flex flex-col space-y-2">
-              <h1 class="font-bold text-nord6 text-3xl">REWEL CMS</h1>
+              <h1 class="font-bold text-nord6 text-3xl ">YAMS</h1>
+              <h1 class="font-base text-gray-400 text-sm">(Yet Another Content Management System)</h1>
               <hr>
-              <p class="text-nord6">Database URI</p>
+              <p class="text-nord6 font-base">Database URI</p>
               <p  class="text-nord11" v-if="status=='err'" >{{error_message}}</p>
               <input v-model="uri" type="text" id="db_uri_input" class="w-full h-8 rounded-sm pl-4" placeholder="Database URI" :disabled="status=='pending'">
               <button type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-400 transition ease-in-out duration-150" @click="connectClicked()">
@@ -42,7 +43,7 @@
       <div id="sidebar-1" class="mr-5">
         <div class="w-72 pb-10 rounded-2xl bg-nord0 shadow-md shadow-nord3" v-if="visible">
           <div class="bg-gradient-to-tr from-nord0 to-nord1 rounded-t-2xl flex flex-row px-10 py-4">
-            <p class="font-semibold text-nord5 text-lg ">Rewel CMS</p>
+            <p class="font-semibold text-nord5 text-2xl ">YAMS</p>
             <i class="fas fa-redo-alt ml-auto pt-2 hover:rotate-90 hover:scale-150 transition duration-150 text-nord4 font-bold" @click="refresh()"></i>
           </div>
           <div class="flex ">
@@ -68,7 +69,7 @@
           </div>
           <div class="pt-1 bg-nord1">
             <div class="my-2 flex flex-row px-10">
-              <i class="far fa-file-alt mr-2 text-nord5" v-if='collections_loading == false'></i>
+              <i class="far fa-file-alt mr-2 text-nord5" v-if='documents_loading == false'></i>
               <svg class="animate-spin mr-2 h-3 w-3 text-nord5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" v-else>
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -76,13 +77,12 @@
               <p class="text-nord4 text-sm font-semibold ">
                 DOCUMENTS
               </p> 
-              <i @click="newDocument()" class="ml-auto fas fa-plus text-nord4 hover:text-nord7 hover:scale-150 transition duration-150 "></i>
+              <i @click="newDocument()" class="ml-auto fas fa-plus text-nord4 hover:text-nord7 hover:scale-150 transition duration-150 " v-if="selected_collection!=false&&documents_loading==false"></i>
             </div>     
             <select name="document_list" size=10 id="document_list" class="resize-y w-full overflow-x-clip overflow-auto bg-nord2 pt-2 hover:outline-none hover:border-none">
               <option  class="text-nord4 pl-14 pt-2 font-semibold text-sm bg-nord2"
               v-for="doc in documents"
               @click="editDocument(doc)"
-              :selected="doc._id == selected_document._id"
               :value="doc._id"><i class="fas fa-chevron-right text-nord4"></i>{{doc.project_name}}</option>
             </select>
           </div>
