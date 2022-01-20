@@ -92,7 +92,7 @@
       <!--  Content -->
       <div class="w-full">
         <div id="document_panel">
-          <div class="bg-nord1 shadow-md shadow-nord3 min-h-max min-w-fit z-20 overflow-auto pb-10 rounded-2xl ml-5"
+          <div class="bg-nord1 shadow-md shadow-nord3 min-h-max min-w-fit z-20 overflow-auto pb-10 rounded-2xl ml-5 max-h-screen"
             v-if="visible" >
             <div class="flex flex-row py-4 from-nord0 to-nord2 bg-gradient-to-tr px-10">
               <p class="text-xl font-bold text-nord5  mr-10"> DOCUMENT </p>
@@ -106,9 +106,10 @@
               </div>
             </div>
             <p class="font-semibold text-yellow-200 px-14">{{error_msg}}</p>
-            <div v-for="name in Object.keys(documentData)" class="px-14 pt-4 resize">
+            <div v-for="name in Object.keys(documentData)" class="px-14 pt-4 resize-y">
               <p class="font-normal text-base text-nord4" v-show="(name=='_id'&&state == 'edit')||name!='_id'">{{name}}</p>
-              <input class="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none resize-y w-full mb-5 " type="text" v-model="documentData[name]" v-bind:placeholder="name" :disabled="name=='_id'" v-show="(name=='_id'&&state == 'edit')||name!='_id'">
+                <input type="checkbox" v-if="typeof(documentData[name])=='boolean'" v-model="documentData[name]" v-bind:placeholder="name"/>
+                <textarea class="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none resize-y w-full mb-5 " type="text" v-model="documentData[name]" v-bind:placeholder="name" :disabled="name=='_id'" v-show="(name=='_id'&&state == 'edit')||name!='_id'" v-else>
             </div>
           </div>
         </div>
