@@ -37,14 +37,28 @@ app.on('activate', () => {
 
 
 const { MongoClient } = require('mongodb');
+var ObjectId = require('mongodb').ObjectId;
 
 var client;
 
 ipcMain.on('db_uri', (event, uri) => {
   try {
-    client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    event.returnValue = true
-
+    //client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000});
+    MongoClient.connect(uri, {
+      useNewUrlParser: true, 
+      useUnifiedTopology: true, 
+      connectTimeoutMS: 5000},
+      function (err, c) {
+        if (err) {
+          event.reply('db_uri', {
+            status: 'err',
+            message: err
+          })
+        }else {
+          client = c;
+          event.reply('db_uri', {status: 'ok'})
+        }
+      })
   } catch (error) {
     event.returnValue = false;
     return
@@ -70,6 +84,7 @@ ipcMain.on("request_documents", (event, message) => {
     client.db().collection(message).find({}).toArray().then( function(docs) {
       var data = []
       for (d of docs){
+        d._id = d._id.toString();
         data.push(d)
       }
       event.reply('data_sync', {"type":"documents", "data":data})
@@ -77,3 +92,30 @@ ipcMain.on("request_documents", (event, message) => {
   );
 })
 
+ipcMain.on("modify", (event, message) => {
+  if (message.type == "edit") {
+    query = {_id: ObjectId(message.data._id)}
+    delete message.data._id
+    change = {$set:message.data}
+
+    client.connect().then( client => 
+      client.db().collection(message.collection).updateOne(query, change, {upsert: false}).then( function(err, res){
+        if (err) {
+          event.reply('modify', { status: 'err', message: err })
+        }else {
+          event.reply('modify', { status: 'ok'})
+        }
+      }).finally(() => client.close())
+    );
+  } else if (message.type == "new") {
+    client.connect().then( client => 
+      client.db().collection(message.collection).insertOne(message.data).then( function(err, res){
+        if (err) {
+          event.reply('modify', { status: 'err', message: err })
+        }else {
+          event.reply('modify', { status: 'ok'})
+        }
+      }).finally(() => client.close())
+    );
+  }
+})
