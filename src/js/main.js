@@ -25,21 +25,20 @@ const DBUri = {
     connectClicked(){
       this.status = 'pending'
       ipcRenderer.send('db_uri', document.getElementById("db_uri_input").value)
+      ipcRenderer.on("db_uri", (event, data) => {
+        console.log(data)
+        if (data.status == 'err'){
+          dburi_vm.error_message = data.message
+          dburi_vm.status = 'err'
+        } else if (data.status == "ok") {
+          transition_to_main()
+        }
+      })
     }
   }
 }
 
-dburi_vm = Vue.createApp(DBUri).mount("#connectToDBPopUp")
 
-ipcRenderer.on("db_uri", (event, data) => {
-  console.log(data)
-  if (data.status == 'err'){
-    dburi_vm.error_message = data.message
-    dburi_vm.status = 'err'
-  } else if (data.status == "ok") {
-    transition_to_main()
-  }
-})
 
 
 
@@ -96,7 +95,7 @@ const Sidebar = {
   }
 }
 
-sidebar_vm = Vue.createApp(Sidebar).mount('#sidebar-1')
+
 
 const DocumentPanel =  {
   data() {
@@ -117,6 +116,14 @@ const DocumentPanel =  {
         collection: this.collectionName,
         data: JSON.parse(JSON.stringify(this.documentData))
       })
+      ipcRenderer.on('modify', (event, data) => {
+        documentpanel_vm.is_processing = false;
+        if (data.status == "ok"){
+          this.error_msg = "Sucessfully Processed!"
+        } else {
+          this.error_msg = data.message
+        }
+      })
     },
     deleteDocument() {
       this.is_processing = true;
@@ -124,16 +131,11 @@ const DocumentPanel =  {
   }
 }
 
-ipcRenderer.on('modify', (event, data) => {
-  documentpanel_vm.is_processing = false;
-  if (data.status == "ok"){
-    this.error_msg = "Sucessfully Processed!"
-  } else {
-    this.error_msg = data.message
-  }
-})
-documentpanel_vm = Vue.createApp(DocumentPanel).mount('#document_panel')
 
+
+dburi_vm = Vue.createApp(DBUri).mount("#connectToDBPopUp")
+documentpanel_vm = Vue.createApp(DocumentPanel).mount('#document_panel')
+sidebar_vm = Vue.createApp(Sidebar).mount('#sidebar-1')
 
 ipcRenderer.on('data_sync', (event, data) => {
   if (data["type"] == "collections"){ 
